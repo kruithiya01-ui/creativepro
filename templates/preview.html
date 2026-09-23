@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Document Preview - NeuroLearn AI{% endblock %}
+
+{% block head %}
+<style>
+    .preview-wrapper {
+        max-width: 900px;
+        width: 100%;
+        margin: auto;
+        padding: 32px;
+        background: var(--bg-card, #1e293b);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        color: var(--text-main, #f8fafc);
+        box-sizing: border-box;
+    }
+
+    .preview-top-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .title-gradient {
+        background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f43f5e 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .p-meta-tags {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .p-badge {
+        background: rgba(99, 102, 241, 0.1);
+        color: #818cf8;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .p-content {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .p-section {
+        background: rgba(15, 23, 42, 0.4);
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .p-section h3 {
+        font-size: 1.2rem;
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .p-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #e2e8f0;
+    }
+
+    .p-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .p-list li {
+        color: #e2e8f0;
+        padding-left: 16px;
+        border-left: 3px solid var(--secondary-color, #ec4899);
+        line-height: 1.6;
+    }
+
+    .p-tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .p-tag {
+        background: rgba(236, 72, 153, 0.1);
+        color: #f472b6;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(236, 72, 153, 0.2);
+    }
+
+    .p-loading {
+        text-align: center;
+        padding: 40px;
+    }
+
+    .p-loader {
+        border: 4px solid rgba(255,255,255,0.1);
+        border-top: 4px solid var(--primary-color, #6366f1);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: p-spin 1s linear infinite;
+        margin: 0 auto 16px auto;
+    }
+
+    @keyframes p-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in" style="width: 100%; display: flex; justify-content: center; padding: 20px 0;">
+    <div class="preview-wrapper">
+        
+        <div class="preview-top-nav">
+            <a href="{{ url_for('retention') }}" style="color: #94a3b8; text-decoration: none; font-size: 0.95rem; font-weight: 500;">
+                ← Back
+            </a>
+            <form action="{{ url_for('create_study_plan', material_id=material_id) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">+ Study Plan</button>
+            </form>
+        </div>
+
+        <div>
+            <h1 class="title-gradient">{{ meta.filename }}</h1>
+            <div class="p-meta-tags" style="margin-top: 16px;">
+                <span class="p-badge" id="badge-date">📅 {{ meta.upload_date.split(' ')[0] }}</span>
+                <span class="p-badge" id="badge-time">⏱️ {% if summary %}{{ summary.reading_time }}{% else %}Generating{% endif %} mins</span>
+                <span class="p-badge" id="badge-type">📄 {{ meta.filename.split('.')[-1].upper() }}</span>
+            </div>
+        </div>
+
+        <div id="summary-content-area">
+            {% if summary %}
+            <div class="p-content">
+                <div class="p-section">
+                    <h3>📝 Document Overview</h3>
+                    <div class="p-text">{{ summary.overview }}</div>
+                </div>
+
+                <div class="p-section">
+                    <h3>📚 Chapter Breakdown</h3>
+                    <ul class="p-list">
+                        {% for topic in summary.topics %}
+                        <li style="border-left-color: #818cf8;">{{ topic }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="p-section">
+                    <h3>⚡ Key Revision Notes</h3>
+                    <ul class="p-list">
+                        {% for note in summary.revision_notes %}
+                        <li>{{ note }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="p-section">
+                    <h3>🔑 Important Concepts</h3>
+                    <div class="p-tags-container">
+                        {% for concept in summary.concepts %}
+                        <span class="p-tag">{{ concept }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="p-loading">
+                <div class="p-loader"></div>
+                <h3 style="color: #f8fafc; margin-bottom: 8px;">Generating smart summary...</h3>
+                <p style="color: #94a3b8;">Extracting key concepts and formatting sections.</p>
+            </div>
+            
+            <script>
+                fetch('/api/generate_summary/{{ material_id }}', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        const s = data.summary;
+                        document.getElementById('badge-time').innerText = `⏱️ ${s.reading_time} mins`;
+                        
+                        const topicsHtml = s.topics.map(t => `<li style="border-left-color: #818cf8;">${t}</li>`).join('');
+                        const notesHtml = s.revision_notes.map(n => `<li>${n}</li>`).join('');
+                        const conceptsHtml = s.concepts.map(c => `<span class="p-tag">${c}</span>`).join('');
+
+                        document.getElementById('summary-content-area').innerHTML = `
+                        <div class="p-content">
+                            <div class="p-section"><h3>📝 Document Overview</h3><div class="p-text">${s.overview}</div></div>
+                            <div class="p-section"><h3>📚 Chapter Breakdown</h3><ul class="p-list">${topicsHtml}</ul></div>
+                            <div class="p-section"><h3>⚡ Key Revision Notes</h3><ul class="p-list">${notesHtml}</ul></div>
+                            <div class="p-section"><h3>🔑 Important Concepts</h3><div class="p-tags-container">${conceptsHtml}</div></div>
+                        </div>`;
+                    } else {
+                        document.getElementById('summary-content-area').innerHTML = `
+                        <div class="p-loading">
+                            <h3 style="color: #ef4444;">Unable to generate summary</h3>
+                            <p style="color: #94a3b8;">Unable to read document. Please upload a supported text-based file.</p>
+                        </div>`;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('summary-content-area').innerHTML = `
+                    <div class="p-loading">
+                        <h3 style="color: #ef4444;">Unable to generate summary</h3>
+                        <p style="color: #94a3b8;">Unable to read document. Please upload a supported text-based file.</p>
+                    </div>`;
+                });
+            </script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

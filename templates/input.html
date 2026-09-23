@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Input Data | Knowledge Retention Analyzer{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in" style="max-width: 600px; margin: 2rem auto;">
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 1.5rem;" class="text-gradient">Student Data Entry</h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Enter the metrics below to predict
+            the knowledge retention score.</p>
+
+        <form action="{{ url_for('predict') }}" method="POST">
+            <div class="form-group">
+                <label for="quiz_score">Recent Quiz Score (0-100)</label>
+                <input type="number" id="quiz_score" name="quiz_score" class="form-control" min="0" max="100" step="0.1"
+                    required placeholder="e.g. 85">
+            </div>
+
+            <div class="form-group">
+                <label for="previous_score">Previous Test Score (0-100)</label>
+                <input type="number" id="previous_score" name="previous_score" class="form-control" min="0" max="100"
+                    step="0.1" required placeholder="e.g. 78">
+            </div>
+
+            <div class="form-group">
+                <label for="study_time">Study Time Devoted (Hours)</label>
+                <input type="number" id="study_time" name="study_time" class="form-control" min="0" max="100" step="0.1"
+                    required placeholder="e.g. 24">
+            </div>
+
+            <div class="form-group">
+                <label for="revisions">Number of Revisions Completed</label>
+                <input type="number" id="revisions" name="revisions" class="form-control" min="0" max="20" required
+                    placeholder="e.g. 3">
+            </div>
+
+            <div class="form-group">
+                <label for="time_gap">Time Gap Since Last Revision (Days)</label>
+                <input type="number" id="time_gap" name="time_gap" class="form-control" min="0" max="365" required
+                    placeholder="e.g. 5">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Run Prediction
+                Engine</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

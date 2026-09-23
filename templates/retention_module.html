@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Knowledge Retention - NeuroLearn AI{% endblock %}
+
+{% block head %}
+<style>
+    /* Phase 1 Custom Styles */
+    .retention-container {
+        display: flex;
+        gap: 2rem;
+        min-height: 70vh;
+        margin-top: -1.5rem; /* pull up slightly */
+    }
+
+    .retention-sidebar {
+        width: 250px;
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .sidebar-link {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .sidebar-link:hover, .sidebar-link.active {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary-color);
+    }
+
+    .retention-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Dashboard Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .stat-card {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-card h3 {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    /* Upload Section */
+    .upload-section {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 2rem;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-section:hover {
+        border-color: var(--primary-color);
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    /* File Preview Cards */
+    .files-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .file-card {
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .file-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+    }
+
+    .file-icon {
+        font-size: 2rem;
+        color: var(--secondary-color);
+    }
+
+    .file-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .file-meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .file-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    /* Quizzes Section */
+    .quiz-section {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .quiz-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .quiz-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.4);
+        border-radius: 0.5rem;
+        border-left: 4px solid var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="retention-container animate-fade-in">
+    <!-- Sidebar -->
+    <div class="retention-sidebar">
+        <h2 style="font-size: 1.2rem; margin-bottom: 1rem; padding-left: 1rem;">Learning Hub</h2>
+        <a href="#" class="sidebar-link active">
+            <span>📊</span> Dashboard
+        </a>
+        <a href="#" class="sidebar-link">
+            <span>📚</span> Study Materials
+        </a>
+        <a href="#" class="sidebar-link">
+            <span>📝</span> Quizzes
+        </a>
+        <a href="#" class="sidebar-link">
+            <span>📈</span> Progress
+        </a>
+        <!-- Phase 5 Scaffolding -->
+        <a href="{{ url_for('flashcards_stub') }}" class="sidebar-link" style="opacity: 0.6;">
+            <span>🎴</span> Flashcards <span style="font-size: 0.6rem; background: var(--primary-color); color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto;">Soon</span>
+        </a>
+        <a href="{{ url_for('chatbot_stub') }}" class="sidebar-link" style="opacity: 0.6;">
+            <span>🤖</span> AI Tutor <span style="font-size: 0.6rem; background: var(--primary-color); color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto;">Soon</span>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="retention-main">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 class="text-gradient">Knowledge Retention</h1>
+            <a href="{{ url_for('study_planner') }}" class="btn btn-primary" style="text-decoration: none;">+ New Study Plan</a>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Retention Score</h3>
+                <div class="value" style="color: var(--success);">{{ score }}%</div>
+                <div style="background: rgba(255,255,255,0.05); height: 6px; border-radius: 3px; margin-top: 10px; overflow: hidden;">
+                    <div style="width: {{ score }}%; height: 100%; background: var(--success);"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Materials Uploaded</h3>
+                <div class="value">{{ materials_count }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Quizzes Pending</h3>
+                <div class="value" style="color: var(--warning);">{{ quizzes_pending }}</div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <div class="upload-icon">📄</div>
+            <h2 style="margin-bottom: 0.5rem;">Upload Study Material</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Drag and drop PDF, PPT, or DOCX files here</p>
+            <button class="btn btn-outline" id="browse-files-btn">Browse Files</button>
+            <input type="file" id="file-upload-input" style="display: none;" accept=".pdf,.ppt,.pptx,.doc,.docx,.txt" multiple>
+        </div>
+
+        <!-- File Preview Cards -->
+        <div>
+            <h2 style="font-size: 1.2rem; margin-bottom: 1rem;">Recent Materials</h2>
+            <div class="files-grid">
+                {% if materials %}
+                    {% for m in materials %}
+                    <div class="file-card">
+                        <div class="file-icon">
+                            {% if '.pdf' in m.filename.lower() %}📕
+                            {% elif '.doc' in m.filename.lower() %}📘
+                            {% else %}📄{% endif %}
+                        </div>
+                        <div class="file-name">{{ m.filename }}</div>
+                        <div class="file-meta">Uploaded: {{ m.upload_date.split(' ')[0] }}</div>
+                        <div class="file-actions">
+                            <a href="{{ url_for('preview_material', material_id=m.id) }}" class="btn btn-outline btn-sm" style="text-decoration: none; text-align: center; width: 100%;">Preview</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-muted);">No materials uploaded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div class="quiz-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 1.2rem; margin: 0;">Upcoming Quizzes</h2>
+                <a href="#" style="color: var(--primary-color); text-decoration: none; font-size: 0.9rem;">View All</a>
+            </div>
+            <div class="quiz-list">
+                {% if quizzes %}
+                    {% for q in quizzes %}
+                    <div class="quiz-item">
+                        <div>
+                            <div style="font-weight: 600;">Review Module: {{ q.filename }}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Revision scheduled: {{ q.next_revision.split(' ')[0] }}</div>
+                        </div>
+                        <a href="{{ url_for('take_quiz', quiz_id=q.quiz_id) }}" class="btn btn-primary btn-sm">Start Quiz</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-muted); margin-top: 1rem;">No quizzes pending. Upload materials to generate.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('file-upload-input');
+    const browseBtn = document.getElementById('browse-files-btn');
+
+    browseBtn.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function(e) {
+        if(this.files && this.files.length > 0) {
+            const formData = new FormData();
+            for(let i=0; i<this.files.length; i++) {
+                formData.append('file', this.files[i]);
+            }
+            
+            browseBtn.innerText = 'Extracting text...';
+            browseBtn.disabled = true;
+
+            fetch('{{ url_for("upload_material") }}', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                window.location.reload();
+            }).catch(error => {
+                console.error('Error:', error);
+                browseBtn.innerText = 'Browse Files';
+                browseBtn.disabled = false;
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Study Planner - NeuroLearn AI{% endblock %}
+
+{% block head %}
+<style>
+    .planner-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding-bottom: 3rem;
+    }
+
+    .selector-card {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        outline: none;
+        font-family: inherit;
+    }
+
+    .plan-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .day-card {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .day-card:hover {
+        border-color: var(--primary-color);
+        transform: translateX(5px);
+    }
+
+    .day-number {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.2rem;
+        height: 60px;
+        width: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        flex-shrink: 0;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .day-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .day-topic {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .day-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 1rem;
+    }
+
+    .type-badge {
+        display: inline-block;
+        padding: 0.15rem 0.6rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .type-Reading { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
+    .type-Revision { background: rgba(234, 179, 8, 0.1); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.2); }
+    .type-Quiz { background: rgba(236, 72, 153, 0.1); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.2); }
+
+    .status-completed {
+        opacity: 0.5;
+        border-left: 4px solid var(--success);
+    }
+
+    .status-completed .day-number {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--success);
+        border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .day-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .day-actions {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="planner-container animate-fade-in">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="{{ url_for('retention') }}" style="color: var(--text-muted); text-decoration: none; font-size: 1.5rem; display: flex; align-items: center;">
+            ←
+        </a>
+        <h1 class="text-gradient" style="margin: 0;">Intelligent Study Planner</h1>
+    </div>
+
+    <!-- Selection Card -->
+    <div class="selector-card">
+        <h2 style="font-size: 1.2rem; margin: 0;">Select Study Material</h2>
+        
+        <form id="materialForm" action="{{ url_for('study_planner') }}" method="GET" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <select name="material_id" class="form-select" onchange="document.getElementById('materialForm').submit()" style="flex: 1; min-width: 250px;">
+                <option value="">-- Choose a Document --</option>
+                {% for m in materials %}
+                    <option value="{{ m.id }}" {% if current_material_id == m.id %}selected{% endif %}>
+                        {{ m.filename }} {% if m.has_plan %}(Plan Exists){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        {% if current_material_id and not plan %}
+            <form action="{{ url_for('create_study_plan', material_id=current_material_id) }}" method="POST">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">⚡ Generate AI Study Plan</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <!-- Plan Display -->
+    {% if plan %}
+    <div class="plan-grid">
+        {% for day in plan %}
+        <div class="day-card {% if day.status == 'Completed' %}status-completed{% endif %}">
+            <div class="day-number">Day {{ day.day }}</div>
+            <div class="day-details">
+                <div class="day-topic">{{ day.topic }}</div>
+                <div class="day-meta">
+                    <span class="type-badge type-{{ day.type }}">{{ day.type }}</span>
+                    <span>⏱️ {{ day.duration }} mins</span>
+                </div>
+            </div>
+            
+            <div class="day-actions">
+                {% if day.status == 'Completed' %}
+                    <span style="color: var(--success); font-weight: 600;">✓ Completed</span>
+                {% else %}
+                    <form action="{{ url_for('update_plan_status', plan_id=day.plan_id) }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="material_id" value="{{ current_material_id }}">
+                        <input type="hidden" name="status" value="Completed">
+                        <button type="submit" class="btn btn-outline btn-sm">Mark Complete</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% elif current_material_id %}
+    <div style="text-align: center; padding: 3rem; background: var(--bg-card); border-radius: 1rem; border: 1px dashed rgba(255,255,255,0.1);">
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">No study plan has been generated for this document yet.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Knowledge Retention Analyzer{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in" style="margin-bottom: 3rem;">
+    <h2 class="text-gradient" style="font-size: 2.5rem;">Global Analytics Dashboard</h2>
+    <p style="color: var(--text-muted); font-size: 1.1rem;">Visualizing insights generated from the machine learning
+        model based on the synthetic dataset.</p>
+</div>
+
+<div class="dashboard-grid">
+
+    {% if images.feature_importance %}
+    <div class="card animate-fade-in" style="animation-delay: 0.1s;">
+        <h3>Feature Importance</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Displays which student habits have the highest impact on
+            knowledge retention.</p>
+        <div class="chart-card">
+            <img src="{{ url_for('static', filename='images/feature_importance.png') }}" alt="Feature Importance Chart">
+        </div>
+    </div>
+    {% endif %}
+
+    {% if images.actual_vs_pred %}
+    <div class="card animate-fade-in" style="animation-delay: 0.2s;">
+        <h3>Model Accuracy</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Actual vs. Predicted Retention Scores from the test
+            dataset (Random Forest).</p>
+        <div class="chart-card">
+            <img src="{{ url_for('static', filename='images/actual_vs_pred.png') }}" alt="Actual vs Predicted Chart">
+        </div>
+    </div>
+    {% endif %}
+
+    {% if images.study_vs_retention %}
+    <div class="card animate-fade-in" style="animation-delay: 0.3s;">
+        <h3>Study Time vs. Retention</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Scatter plot color-coded by generated risk levels.</p>
+        <div class="chart-card">
+            <img src="{{ url_for('static', filename='images/study_vs_retention.png') }}" alt="Study vs Retention Chart">
+        </div>
+    </div>
+    {% endif %}
+
+    {% if images.retention_dist %}
+    <div class="card animate-fade-in" style="animation-delay: 0.4s;">
+        <h3>Score Distribution</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Distribution of all Knowledge Retention scores within
+            the dataset.</p>
+        <div class="chart-card">
+            <img src="{{ url_for('static', filename='images/retention_dist.png') }}" alt="Retention Distribution Chart">
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% if not images.feature_importance %}
+<div class="card animate-fade-in" style="text-align: center; padding: 4rem 2rem;">
+    <h3 style="color: var(--warning);">Dashboard Not Ready</h3>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">The machine learning visual reports have not been
+        generated yet. Please run `model.py`.</p>
+</div>
+{% endif %}
+
+<div style="margin-top: 4rem; text-align: center;">
+    <a href="{{ url_for('input_data') }}" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;">Test
+        the Model</a>
+</div>
+
+{% endblock %}

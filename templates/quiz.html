@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Academic Assessment - NeuroLearn AI{% endblock %}
+
+{% block head %}
+<style>
+    .exam-header {
+        position: sticky;
+        top: 60px;
+        z-index: 50;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .timer-badge {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--warning);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quiz-container {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .question-card {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .q-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        font-size: 0.9rem;
+    }
+
+    .badge-diff {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+
+    .diff-Easy { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .diff-Medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .diff-Hard { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+    .question-text {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .options-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .option-label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(15, 23, 42, 0.4);
+        padding: 1.2rem;
+        border-radius: 0.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1.05rem;
+    }
+
+    .option-label:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    input[type="radio"]:checked + .option-label {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: var(--primary-color);
+    }
+
+    .option-label input[type="radio"] {
+        accent-color: var(--primary-color);
+        transform: scale(1.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in quiz-container">
+    
+    <div class="exam-header">
+        <div>
+            <h2 style="margin:0; font-size: 1.2rem;">Mock Examination: {{ questions|length }} Questions</h2>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Ensure steady internet connection before submission.</div>
+        </div>
+        <div class="timer-badge" id="exam-timer">
+            ⏱️ 15:00
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('submit_quiz', quiz_id=quiz_id) }}" id="examForm">
+        {% for q in questions %}
+        {% set q_index = loop.index0 %}
+        <div class="question-card" id="q_{{ q_index }}">
+            <div class="q-meta">
+                <div>
+                    <strong style="color: var(--primary-color); font-size: 1.2rem;">Question {{ loop.index }}</strong> 
+                    <span style="color: var(--text-muted); margin-left: 0.5rem;">| Topic: {{ q.topic }}</span>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span class="badge-diff diff-{{ q.difficulty|default('Medium') }}">{{ q.difficulty|default('Medium') }}</span>
+                    <strong style="color: var(--text-muted);">{{ q.marks|default(1) }} Marks</strong>
+                </div>
+            </div>
+            
+            <div class="question-text">
+                {{ q.question }}
+            </div>
+            
+            <div class="options-grid">
+                {% for opt in q.options %}
+                <label class="option-label">
+                    <input type="radio" name="q_{{ q_index }}" value="{{ opt }}" required>
+                    {{ opt }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div style="text-align: center; margin-top: 3rem; margin-bottom: 4rem;">
+            <button type="submit" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 4rem; text-transform: uppercase; letter-spacing: 1px;" onclick="return confirm('Are you sure you want to lock in and submit your assessment?');">Complete Assessment</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Mock Countdown Timer Script
+    let timeRemaining = 15 * 60; // 15 mins default
+    const timerElement = document.getElementById('exam-timer');
+    
+    const countdown = setInterval(() => {
+        timeRemaining--;
+        let minutes = Math.floor(timeRemaining / 60);
+        let seconds = timeRemaining % 60;
+        
+        if(seconds < 10) seconds = '0' + seconds;
+        timerElement.innerHTML = `⏱️ ${minutes}:${seconds}`;
+        
+        if (timeRemaining <= 300) {
+            timerElement.style.color = '#ef4444'; // turn red in last 5 mins
+        }
+        
+        if (timeRemaining <= 0) {
+            clearInterval(countdown);
+            alert("Time's up! Automatically submitting structural assessment.");
+            document.getElementById('examForm').submit();
+        }
+    }, 1000);
+</script>
+{% endblock %}

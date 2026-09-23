@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Results | Knowledge Retention Analyzer{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in" style="max-width: 800px; margin: 2rem auto; text-align: center;">
+
+    <div class="card">
+        <h2>Analysis Complete</h2>
+        <p style="color: var(--text-muted);">Based on the metrics provided, here is the predicted outcome.</p>
+
+        <div style="margin: 3rem 0;">
+            <h3 style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 0;">Predicted Knowledge Retention
+                Score</h3>
+            <div class="result-score text-gradient">
+                {{ score }}%
+            </div>
+
+            {% set risk_class = 'low-risk' %}
+            {% if risk == 'Medium Risk' %}
+            {% set risk_class = 'medium-risk' %}
+            {% elif risk == 'High Risk' %}
+            {% set risk_class = 'high-risk' %}
+            {% endif %}
+
+            <div class="badge {{ risk_class }}">{{ risk }}</div>
+        </div>
+
+        <div
+            style="background: rgba(15, 23, 42, 0.5); padding: 2rem; border-radius: 0.5rem; text-align: left; margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">AI
+                Recommendation</h3>
+            <p style="font-size: 1.1rem; line-height: 1.8;">{{ suggestion }}</p>
+        </div>
+
+        <div style="text-align: left; margin-bottom: 2rem;">
+            <h4 style="color: var(--text-muted); margin-bottom: 1rem;">Input Summary:</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; font-size: 0.9rem;">
+                <div><strong>Quiz Score:</strong> {{ inputs.Quiz_Score }}</div>
+                <div><strong>Previous Score:</strong> {{ inputs.Previous_Score }}</div>
+                <div><strong>Study Time:</strong> {{ inputs.Study_Time_Hours }} hrs</div>
+                <div><strong>Revisions:</strong> {{ inputs.Num_Revisions }}</div>
+                <div><strong>Time Gap:</strong> {{ inputs.Time_Gap_Days }} days</div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+            <a href="{{ url_for('input_data') }}" class="btn btn-primary">Run Another Scenario</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline">View Analytics Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

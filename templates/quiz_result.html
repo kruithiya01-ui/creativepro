@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluation Report - NeuroLearn AI{% endblock %}
+
+{% block head %}
+<style>
+    .report-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .summary-card {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        height: fit-content;
+    }
+
+    .analytics-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .feedback-box {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border-left: 4px solid var(--warning);
+    }
+    
+    .feedback-box.success { border-left-color: var(--success); }
+
+    .circle-score {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        border: 10px solid;
+    }
+    
+    .circle-score .pct { font-size: 3rem; font-weight: 800; line-height: 1;}
+    .circle-score .lbl { font-size: 0.9rem; margin-top: 0.5rem;}
+
+    .score-high { border-color: var(--success); color: var(--success); }
+    .score-med { border-color: var(--warning); color: var(--warning); }
+    .score-low { border-color: var(--danger); color: var(--danger); }
+
+    .breakdown-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .breakdown-table th, .breakdown-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .breakdown-table th {
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in" style="margin-bottom: 4rem;">
+    <h1 class="text-gradient" style="text-align: center; margin-bottom: 3rem;">Academic Evaluation Report</h1>
+
+    <div class="report-grid">
+        <!-- Left: High Level Score -->
+        <div class="summary-card">
+            <h2 style="font-size: 1.3rem; margin-bottom: 2rem;">Assessment Performance</h2>
+            
+            <div class="circle-score {% if score >= 80 %}score-high{% elif score >= 50 %}score-med{% else %}score-low{% endif %}">
+                <div class="pct">{{ score|round(1) }}%</div>
+                <div class="lbl">Total Grade</div>
+            </div>
+            
+            <div style="font-size: 1.1rem; margin-bottom: 1rem;">
+                Marks Obtained: <strong style="color: var(--text-main);">{{ marks_obtained }} / {{ total_marks }}</strong>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+                Accuracy: {{ correct }} correct out of {{ total }} questions
+            </div>
+
+            <a href="{{ url_for('retention') }}" class="btn btn-primary" style="width: 100%;">Return to Knowledge Hub</a>
+        </div>
+
+        <!-- Right: Deep Analytics -->
+        <div class="analytics-panel">
+            
+            {% if wrong_topics %}
+            <div class="feedback-box">
+                <h3 style="color: var(--warning); font-size: 1.1rem; margin-bottom: 0.5rem;">⚠️ High Priority Focus Areas</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">Your heuristic analysis strongly suggests revision in the following conceptual topics:</p>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    {% for topic in wrong_topics %}
+                    <span style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600;">{{ topic }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="feedback-box success">
+                <h3 style="color: var(--success); font-size: 1.1rem; margin-bottom: 0.5rem;">🏆 Perfect Assessment Retention!</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">You demonstrated mastery across all heuristic nodes assigned in this mock exam. Keep your streak alive.</p>
+            </div>
+            {% endif %}
+
+            <div style="background: var(--bg-card); border-radius: 1rem; padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.05);">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Detailed Logic Breakdown</h3>
+                {% if incorrect_breakdown %}
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Q#</th>
+                            <th>Conceptual Topic</th>
+                            <th>Your Answer</th>
+                            <th>Correction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in incorrect_breakdown %}
+                        <tr>
+                            <td style="font-weight: 700;">{{ item.q_num }}</td>
+                            <td>{{ item.topic }}</td>
+                            <td style="color: var(--danger);"><del>{{ item.user_ans }}</del></td>
+                            <td style="color: var(--success); font-weight: 500;">{{ item.correct_ans }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No incorrect logic trees found in this assessment.</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | Knowledge Retention Analyzer{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in" style="text-align: center; max-width: 800px; margin: 4rem auto;">
+    <h1 style="font-size: 3.5rem; margin-bottom: 1.5rem;">
+        Predict Learning Outcomes with <br>
+        <span class="text-gradient">AI Precision</span>
+    </h1>
+    <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2.5rem;">
+        Empower education through machine learning. Analyze student study habits to predict knowledge retention and
+        receive actionable suggestions to improve academic performance.
+    </p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('input_data') }}" class="btn btn-primary"
+            style="font-size: 1.1rem; padding: 1rem 2rem;">Start Analysis</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="font-size: 1.1rem; padding: 1rem 2rem;">View
+            Insights Dashboard</a>
+    </div>
+</div>
+
+<div class="dashboard-grid" style="margin-top: 5rem;">
+    <div class="card animate-fade-in" style="animation-delay: 0.2s;">
+        <h3>Machine Learning Core</h3>
+        <p style="color: var(--text-muted);">Built using Scikit-Learn utilizing advanced Random Forest Regression
+            algorithms to accurately forecast knowledge decay.</p>
+    </div>
+    <div class="card animate-fade-in" style="animation-delay: 0.4s;">
+        <h3>Data-Driven Insights</h3>
+        <p style="color: var(--text-muted);">Transform raw student study metrics into visual insights to understand
+            feature impact on overall retention.</p>
+    </div>
+    <div class="card animate-fade-in" style="animation-delay: 0.6s;">
+        <h3>Actionable Suggestions</h3>
+        <p style="color: var(--text-muted);">It's not just about prediction. Our tool calculates risk levels and offers
+            proactive ways to modify study habits.</p>
+    </div>
+</div>
+{% endblock %}
